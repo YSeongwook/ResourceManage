@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -5,6 +6,7 @@ public class ResourceLoader : MonoBehaviour
 {
     [SerializeField] private Button loadButton; // 리소스 로드 버튼
     [SerializeField] private Transform loadPosition; // 리소스 생성 위치
+    [SerializeField] private string resourceName; // 생성할 프리팹 이름
     [SerializeField] private int numberOfInstances; // 생성할 인스턴스 개수
 
     private void OnEnable()
@@ -21,18 +23,19 @@ public class ResourceLoader : MonoBehaviour
     // 버튼을 눌렀을 때 리소스를 로드하는 함수
     private void LoadResource()
     {
-        // Resources 폴더에서 프리팹 로드
-        GameObject loadedPrefab = Resources.Load<GameObject>("Prefabs/ResourceLoadPrefab");
-        
-        if (loadedPrefab != null)
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        for (int i = 0; i < numberOfInstances; i++)
         {
-            // 로드한 프리팹을 화면에 인스턴스화
-            Instantiate(loadedPrefab, loadPosition.position, Quaternion.identity);
-            DebugLogger.Log("리소스 로드 성공!");
+            GameObject loadedPrefab = Resources.Load<GameObject>("Prefabs/" + resourceName);
+            if (loadedPrefab != null)
+            {
+                Instantiate(loadedPrefab, loadPosition.position + new Vector3(i * 2, 0, 0), Quaternion.identity);
+            }
         }
-        else
-        {
-            DebugLogger.LogError("리소스 로드 실패!");
-        }
+
+        stopwatch.Stop();
+        DebugLogger.Log($"리소스 {numberOfInstances}개 로드 완료. 걸린 시간: {stopwatch.ElapsedMilliseconds} ms");
     }
 }
